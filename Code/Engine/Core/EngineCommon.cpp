@@ -1,6 +1,9 @@
+#include "EngineCommon.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 
 #include "Engine/Core/ErrorWarningAssert.hpp"
+
+#include "Engine/Core/DevConsole.hpp"
 
 
 //! \file EngineCommon.cpp
@@ -40,10 +43,39 @@ BufferEndian GetPlatformNativeEndianMode()
 		return BufferEndian::BIG;
 	}
 	
-	if (uint8PtrArr[0] == 0x87 && uint8PtrArr[1] == 0x65 && uint8PtrArr[2] == 0x43 && uint8PtrArr[3] == 0x21)
+	if (uint8PtrArr[0] == 0x78 && uint8PtrArr[1] == 0x56 && uint8PtrArr[2] == 0x34 && uint8PtrArr[3] == 0x12)
 	{
 		return BufferEndian::LITTLE;
 	}
 
-	ERROR_AND_DIE("Unsupported native EndianMode!");
+	ERROR_AND_DIE("Unsupported EndianMode!");
+}
+
+void ReverseShortBytesInPlace(uint8_t* bytes)
+{
+	uint16_t* bytesAsShort = reinterpret_cast<uint16_t*>(bytes);
+	*bytesAsShort = ((*bytesAsShort & 0x00FF) << 8) |
+					((*bytesAsShort & 0xFF00) >> 8);
+}
+
+void ReverseWordBytesInPlace(uint8_t* bytes)
+{
+	uint32_t* bytesAsWord = reinterpret_cast<uint32_t*>(bytes);
+	*bytesAsWord = ((*bytesAsWord & 0x000000FF) << 24) |
+				   ((*bytesAsWord & 0x0000FF00) << 8) |
+				   ((*bytesAsWord & 0x00FF0000) >> 8) |
+				   ((*bytesAsWord & 0xFF000000) >> 24 );
+}
+
+void ReverseDWordBytesInPlace(uint8_t* bytes)
+{
+	uint64_t* bytesAsDWord = reinterpret_cast<uint64_t*>(bytes);
+	*bytesAsDWord = ((*bytesAsDWord & 0x00000000000000FFull) << 56) |
+					((*bytesAsDWord & 0x000000000000FF00ull) << 40) |
+					((*bytesAsDWord & 0x0000000000FF0000ull) << 24) |
+					((*bytesAsDWord & 0x00000000FF000000ull) << 8) |
+					((*bytesAsDWord & 0x000000FF00000000ull) >> 8) |
+					((*bytesAsDWord & 0x0000FF0000000000ull) >> 24) |
+					((*bytesAsDWord & 0x00FF000000000000ull) >> 40) |
+					((*bytesAsDWord & 0xFF00000000000000ull) >> 56);
 }

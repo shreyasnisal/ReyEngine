@@ -177,6 +177,159 @@ RaycastResult2D RaycastVsAABB2(Vec2 const& startPos, Vec2 const& fwdNormal, floa
 	}
 }
 
+RaycastResult2D RaycastVsPlane2(Vec2 const& startPos, Vec2 const& fwdNormal, float maxDistance, Plane2 const& plane)
+{
+	RaycastResult2D result;
+	result.m_rayStartPosition = startPos;
+	result.m_rayForwardNormal = fwdNormal;
+	result.m_rayMaxLength = maxDistance;
+
+	if ((DotProduct2D(plane.m_normal, startPos) - plane.m_distanceFromOriginAlongNormal) * (DotProduct2D(plane.m_normal, startPos + fwdNormal * maxDistance) - plane.m_distanceFromOriginAlongNormal) > 0.f)
+	{
+		// Start and end of ray don't straddle the plane, miss!
+		return result;
+	}
+
+	float startPosPerpendicularDistanceFromPlane = GetProjectedLength2D(startPos, plane.m_normal) - plane.m_distanceFromOriginAlongNormal;
+	float endPosPerpendicularDistanceFromPlane = GetProjectedLength2D(startPos + fwdNormal * maxDistance, plane.m_normal) - plane.m_distanceFromOriginAlongNormal;
+
+	float impactDistance = fabsf(startPosPerpendicularDistanceFromPlane) / fabsf(startPosPerpendicularDistanceFromPlane - endPosPerpendicularDistanceFromPlane) * maxDistance;
+
+	if (impactDistance >= maxDistance)
+	{
+		return result;
+	}
+
+	result.m_didImpact = true;
+	result.m_impactDistance = impactDistance;
+	result.m_impactPosition = startPos + impactDistance * fwdNormal;
+
+	if (plane.IsPointBehind(startPos))
+	{
+		result.m_impactNormal = -plane.m_normal;
+	}
+	else if (plane.IsPointInFront(startPos))
+	{
+		result.m_impactNormal = plane.m_normal;
+	}
+
+	return result;
+}
+
+RaycastResult2D RaycastVsConvexHull2(Vec2 const& startPos, Vec2 const& fwdNormal, float maxDistance, ConvexHull2 const& convexHull)
+{
+	RaycastResult2D result;
+	result.m_rayStartPosition = startPos;
+	result.m_rayForwardNormal = fwdNormal;
+	result.m_rayMaxLength = FLT_MAX;
+
+	// IsPointInside check
+	if (IsPointInsideConvexHull2(startPos, convexHull))
+	{
+		result.m_didImpact = true;
+		result.m_impactDistance = 0.f;
+		result.m_impactPosition = startPos;
+		result.m_impactNormal = -fwdNormal;
+	}
+
+	// Initialize lastEntry and firstExit variables
+	float lastEntryDistance = -1.f;
+	float firstExitDistance = maxDistance;
+	RaycastResult2D lastEntryPlaneRaycastResult;
+
+	// Loop over all planes and do raycast vs that plane
+	// Update lastEntry or firstExit if applicable
+	std::vector<Plane2> planes = convexHull.GetPlanes();
+	for (int planeIndex = 0; planeIndex < (int)planes.size(); planeIndex++)
+	{
+		RaycastResult2D raycastVsPlaneResult = RaycastVsPlane2(startPos, fwdNormal, maxDistance, planes[planeIndex]);
+	
+	
+		if (raycastVsPlaneResult.m_didImpact)
+		{
+			// Check if this is an entry or exit
+			if (planes[planeIndex].IsPointBehind(startPos))
+			{
+				// Exit
+				if (raycastVsPlaneResult.m_impactDistance < firstExitDistance)
+				{
+					firstExitDistance = raycastVsPlaneResult.m_impactDistance;
+				}
+			}
+			else if (planes[planeIndex].IsPointInFront(startPos))
+			{
+				// Entry
+				if (raycastVsPlaneResult.m_impactDistance > lastEntryDistance)
+				{
+					lastEntryDistance = raycastVsPlaneResult.m_impactDistance;
+					lastEntryPlaneRaycastResult = raycastVsPlaneResult;
+				}
+			}
+			else
+			{
+				if (DotProduct2D(fwdNormal, planes[planeIndex].m_normal) > 0.f)
+				{
+					// Exit
+					if (raycastVsPlaneResult.m_impactDistance < firstExitDistance)
+					{
+						firstExitDistance = raycastVsPlaneResult.m_impactDistance;
+					}
+				}
+				else if (DotProduct2D(fwdNormal, planes[planeIndex].m_normal) < 0.f)
+				{
+					// Entry
+					if (raycastVsPlaneResult.m_impactDistance > lastEntryDistance)
+					{
+						lastEntryDistance = raycastVsPlaneResult.m_impactDistance;
+						lastEntryPlaneRaycastResult = raycastVsPlaneResult;
+						lastEntryPlaneRaycastResult.m_impactNormal = planes[planeIndex].m_normal;
+					}
+				}
+			}
+		}
+
+	}
+
+	// If there is no entry, miss!
+	if (lastEntryDistance < 0.f)
+	{
+		return result;
+	}
+
+	// If there is no exit, check if end point is inside the hull
+	if (firstExitDistance == FLT_MAX)
+	{
+		if (IsPointInsideConvexHull2(startPos + fwdNormal * maxDistance, convexHull))
+		{
+			result.m_didImpact = true;
+			result.m_impactDistance = lastEntryDistance;
+			result.m_impactPosition = startPos + lastEntryDistance * fwdNormal;
+			result.m_impactNormal = lastEntryPlaneRaycastResult.m_impactNormal;
+		}
+		else
+		{
+			return result;
+		}
+	}
+
+	// If lastEntry is before firstExit, could be a hit
+	// Check that any point between the lastEntry and firstExit is inside the hull
+	// Hit position is last entry
+	if (lastEntryDistance < firstExitDistance)
+	{
+		Vec2 midPointBetweenEntryAndExit = ((startPos + lastEntryDistance * fwdNormal) + (startPos + firstExitDistance * fwdNormal)) * 0.5f;
+		if (IsPointInsideConvexHull2(midPointBetweenEntryAndExit, convexHull))
+		{
+			result.m_didImpact = true;
+			result.m_impactDistance = lastEntryDistance;
+			result.m_impactPosition = startPos + lastEntryDistance * fwdNormal;
+			result.m_impactNormal = lastEntryPlaneRaycastResult.m_impactNormal;
+		}
+	}
+
+	return result;
+}
+
 RaycastResult3D RaycastVsCylinder3D(Vec3 const& startPos, Vec3 const& fwdNormal, float maxDistance, Vec3 const& cylinderBaseCenter, Vec3 const& cylinderTopCenter, float cylinderRadius)
 {
 	RaycastResult3D result;

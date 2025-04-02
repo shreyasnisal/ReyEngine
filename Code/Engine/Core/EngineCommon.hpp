@@ -50,3 +50,7 @@ enum class BufferEndian
 
 BufferEndian GetPlatformNativeEndianMode();
 
+void ReverseShortBytesInPlace(uint8_t* bytes);
+void ReverseWordBytesInPlace(uint8_t* bytes);
+void ReverseDWordBytesInPlace(uint8_t* bytes);
+

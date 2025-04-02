@@ -158,6 +158,40 @@ void DebugRenderWorld(Camera const& camera)
 
 		if (worldGeometry.m_debugRenderMode == DebugRenderMode::ALWAYS)
 		{
+			continue;
+		}
+		else if (worldGeometry.m_debugRenderMode == DebugRenderMode::X_RAY)
+		{
+			continue;
+		}
+
+		Mat44 transform = Mat44();
+		if (worldGeometry.m_type == DebugGeometryType::BILLBOARD_TEXT)
+		{
+			transform = GetBillboardMatrix(worldGeometry.m_billboardType, camera.GetModelMatrix(), worldGeometry.m_translation);
+		}
+
+		s_config.m_renderer->SetDepthMode(depthMode);
+		s_config.m_renderer->SetBlendMode(worldGeometry.m_blendMode);
+		s_config.m_renderer->BindTexture(worldGeometry.m_texture);
+		s_config.m_renderer->SetRasterizerFillMode(worldGeometry.m_rasterizerFillMode);
+		s_config.m_renderer->SetRasterizerCullMode(worldGeometry.m_rasterizerCullMode);
+		s_config.m_renderer->SetModelConstants(transform, currentColor);
+		s_config.m_renderer->SetSamplerMode(SamplerMode::POINT_CLAMP);
+		s_config.m_renderer->BindShader(nullptr);
+		s_config.m_renderer->DrawVertexArray(worldGeometry.m_vertexes);
+	}
+
+	// Draw XRay and Depth Disabled stuff here
+	for (int worldGeometryIndex = 0; worldGeometryIndex < (int)s_debugWorldGeometries.size(); worldGeometryIndex++)
+	{
+		DebugGeometry const& worldGeometry = s_debugWorldGeometries[worldGeometryIndex];
+		Rgba8 currentColor = worldGeometry.m_durationTimer ? Interpolate(worldGeometry.m_startColor, worldGeometry.m_endColor, worldGeometry.m_durationTimer->GetElapsedFraction()) : worldGeometry.m_startColor;
+
+		DepthMode depthMode = DepthMode::ENABLED;
+
+		if (worldGeometry.m_debugRenderMode == DebugRenderMode::ALWAYS)
+		{
 			depthMode = DepthMode::DISABLED;
 		}
 		else if (worldGeometry.m_debugRenderMode == DebugRenderMode::X_RAY)
@@ -173,6 +207,10 @@ void DebugRenderWorld(Camera const& camera)
 			s_config.m_renderer->SetModelConstants(Mat44(), xrayColor);
 			s_config.m_renderer->BindShader(nullptr);
 			s_config.m_renderer->DrawVertexArray(worldGeometry.m_vertexes);
+		}
+		else
+		{
+			continue;
 		}
 
 		Mat44 transform = Mat44();
@@ -396,6 +434,25 @@ void DebugAddWorldWireCylinder(Vec3 const& baseCenter, Vec3 const& topCenter, fl
 	cylinder.m_endColor = endColor;
 	cylinder.m_debugRenderMode = mode;
 	cylinder.m_rasterizerFillMode = RasterizerFillMode::WIREFRAME;
+	s_debugWorldGeometryMutex.lock();
+	s_debugWorldGeometries.push_back(cylinder);
+	s_debugWorldGeometryMutex.unlock();
+}
+
+void DebugAddWorldCylinder(Vec3 const& baseCenter, Vec3 const& topCenter, float radius, float duration, Rgba8 const& startColor, Rgba8 const& endColor, DebugRenderMode mode)
+{
+	DebugGeometry cylinder;
+	cylinder.m_type = DebugGeometryType::CYLINDER;
+	AddVertsForCylinder3D(cylinder.m_vertexes, baseCenter, topCenter, radius);
+	if (duration != -1.f)
+	{
+		cylinder.m_durationTimer = new Stopwatch(duration);
+		cylinder.m_durationTimer->Start();
+	}
+	cylinder.m_startColor = startColor;
+	cylinder.m_endColor = endColor;
+	cylinder.m_debugRenderMode = mode;
+	cylinder.m_rasterizerFillMode = RasterizerFillMode::SOLID;
 	s_debugWorldGeometryMutex.lock();
 	s_debugWorldGeometries.push_back(cylinder);
 	s_debugWorldGeometryMutex.unlock();

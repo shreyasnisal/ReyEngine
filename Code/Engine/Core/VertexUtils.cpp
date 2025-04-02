@@ -1,10 +1,12 @@
 #include "VertexUtils.hpp"
 
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Core/Vertex_PCU.hpp"
 #include "Engine/Core/Vertex_PCUTBN.hpp"
 #include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/ConvexPoly2.hpp"
 #include "Engine/Math/Mat44.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/OBB2.hpp"
@@ -429,6 +431,42 @@ void AddVertsForArrow2D(std::vector<Vertex_PCU>& verts, Vec2 const& tailPos, Vec
 	Vec2 arrowDirection = (tipPos - tailPos).GetNormalized();
 	AddVertsForLineSegment2D(verts, tipPos, tipPos + arrowDirection.GetRotatedDegrees(135.f) * arrowSize, lineThickness, color);
 	AddVertsForLineSegment2D(verts, tipPos, tipPos + arrowDirection.GetRotatedDegrees(-135.f) * arrowSize, lineThickness, color);
+}
+
+void AddVertsForConvexPoly2(std::vector<Vertex_PCU>& verts, ConvexPoly2 const& convexPoly, Rgba8 const& color)
+{
+	std::vector<Vec2> vertexes = convexPoly.GetVertexes();
+	
+	if (vertexes.size() < 3)
+	{
+		ERROR_AND_DIE("Attempted to add verts for invalid convex poly");
+	}
+
+	Vertex_PCU zerothVertex(vertexes[0].ToVec3(), color, Vec2::ZERO);
+	for (int vertexIndex = 1; vertexIndex < vertexes.size() - 1; vertexIndex++)
+	{
+		verts.push_back(zerothVertex);
+		verts.push_back(Vertex_PCU(vertexes[vertexIndex].ToVec3(), color, Vec2::ZERO));
+		verts.push_back(Vertex_PCU(vertexes[vertexIndex + 1].ToVec3(), color, Vec2::ZERO));
+	}
+}
+
+void AddOutlineVertsForConvexPoly2(std::vector<Vertex_PCU>& verts, ConvexPoly2 const& convexPoly, float thickness, Rgba8 const& color)
+{
+	std::vector<Vec2> vertexes = convexPoly.GetVertexes();
+
+	if (vertexes.size() < 3)
+	{
+		ERROR_AND_DIE("Attempted to add outline verts for invalid convex poly");
+	}
+
+	for (int vertexIndex = 0; vertexIndex < vertexes.size() - 1; vertexIndex++)
+	{
+		AddVertsForLineSegment2D(verts, vertexes[vertexIndex], vertexes[vertexIndex + 1], thickness, color);
+	}
+
+	// Add line segment from last vertex to first to close the convex poly
+	AddVertsForLineSegment2D(verts, vertexes[vertexes.size() - 1], vertexes[0], thickness, color);
 }
 
 /*! \brief Adds vertexes for rendering a 3D quad

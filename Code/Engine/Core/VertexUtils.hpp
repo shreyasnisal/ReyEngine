@@ -18,6 +18,7 @@ struct Vec2;
 struct Vertex_PCU;
 struct Vertex_PCUTBN;
 struct Mat44;
+struct ConvexPoly2;
 
 /*! \file VertexUtils.hpp
 *	\brief Contains helper functions for vertex operations and rendering geometry
@@ -40,6 +41,8 @@ void AddVertsForOBB2(std::vector<Vertex_PCU>& verts, OBB2 const& box, Rgba8 cons
 void AddVertsForLineSegment2D(std::vector<Vertex_PCU>& verts, Vec2 const& start, Vec2 const& end, float thickness, Rgba8 const& color);
 void AddVertsForGradientLineSegment2D(std::vector<Vertex_PCU>& verts, Vec2 const& start, Vec2 const& end, float thickness, Rgba8 const& startColor, Rgba8 const& endColor);
 void AddVertsForArrow2D(std::vector<Vertex_PCU>& verts, Vec2 const& tailPos, Vec2 const& tipPos, float arrowSize, float lineThickness, Rgba8 const& color);
+void AddVertsForConvexPoly2(std::vector<Vertex_PCU>& verts, ConvexPoly2 const& convexPoly, Rgba8 const& color = Rgba8::WHITE);
+void AddOutlineVertsForConvexPoly2(std::vector<Vertex_PCU>& verts, ConvexPoly2 const& convexPoly, float thickness, Rgba8 const& color = Rgba8::WHITE);
 
 void AddVertsForQuad3D(std::vector<Vertex_PCU>& verts, Vec3 const& bottomLeft, Vec3 const& bottomRight, Vec3 const& topRight, Vec3 const& topLeft, Rgba8 const& color = Rgba8::WHITE, AABB2 const& uvCoords = AABB2::ZERO_TO_ONE);
 void AddVertsForQuad3D(std::vector<Vertex_PCUTBN>& verts, Vec3 const& bottomLeft, Vec3 const& bottomRight, Vec3 const& topRight, Vec3 const& topLeft, Rgba8 const& color = Rgba8::WHITE, AABB2 const& uvCoords = AABB2::ZERO_TO_ONE);

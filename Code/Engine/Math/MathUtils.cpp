@@ -6,6 +6,8 @@
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/AABB3.hpp"
+#include "Engine/Math/ConvexPoly2.hpp"
+#include "Engine/Math/ConvexHull2.hpp"
 #include "Engine/Math/FloatRange.hpp"
 #include "Engine/Math/IntVec2.hpp"
 #include "Engine/Math/Mat44.hpp"
@@ -425,6 +427,45 @@ bool IsPointInsideDirectedSector2D(Vec2 const& point, Vec2 const& sectorTip, Vec
 	Vec2 displacementSectorTipToPoint = point - sectorTip;
 
 	return GetAngleDegreesBetweenVectors2D(sectorForwardNormal, displacementSectorTipToPoint) < sectorApertureDegrees * 0.5f;
+}
+
+bool IsPointToLeftOfLine2D(Vec2 const& point, Vec2 const& lineStart, Vec2 const& lineEnd)
+{
+	Vec2 displacementStartToEnd = lineEnd - lineStart;
+	Vec2 linePerpendicular = displacementStartToEnd.GetRotated90Degrees();
+	Vec2 displacementLineStartToPoint = point - lineStart;
+	float pointDistanceAlongPerpendicular = DotProduct2D(displacementLineStartToPoint, linePerpendicular);
+	return (pointDistanceAlongPerpendicular > 0.f);
+}
+
+bool IsPointInsideConvexPoly2(Vec2 const& point, ConvexPoly2 const& convexPoly)
+{
+	std::vector<Vec2> vertexes = convexPoly.GetVertexes();
+
+	for (int vertexIndex = 0; vertexIndex < vertexes.size() - 1; vertexIndex++)
+	{
+		if (!IsPointToLeftOfLine2D(point, vertexes[vertexIndex], vertexes[vertexIndex + 1]))
+		{
+			return false;
+		}
+	}
+
+	return IsPointToLeftOfLine2D(point, vertexes[vertexes.size() - 1], vertexes[0]);
+}
+
+bool IsPointInsideConvexHull2(Vec2 const& point, ConvexHull2 const& convexHull)
+{
+	std::vector<Plane2> planes = convexHull.GetPlanes();
+
+	for (int planeIndex = 0; planeIndex < planes.size(); planeIndex++)
+	{
+		if (!planes[planeIndex].IsPointBehind(point))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 bool IsPointInsideSphere3D(Vec3 const& point, Vec3 const& sphereCenter, float sphereRadius)

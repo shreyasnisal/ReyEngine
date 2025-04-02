@@ -206,6 +206,9 @@
     <ClCompile Include="Input\XboxController.cpp" />
     <ClCompile Include="Math\AABB2.cpp" />
     <ClCompile Include="Math\AABB3.cpp" />
+    <ClCompile Include="Math\ConvexHull2.cpp" />
+    <ClCompile Include="Math\ConvexPoly2.cpp" />
+    <ClCompile Include="Math\ConvexPoly3.cpp" />
     <ClCompile Include="Math\CubicBezierCurve2D.cpp" />
     <ClCompile Include="Math\CubicHermiteCurve2D.cpp" />
     <ClCompile Include="Math\EulerAngles.cpp" />
@@ -294,6 +297,9 @@
     <ClInclude Include="Input\XboxController.hpp" />
     <ClInclude Include="Math\AABB2.hpp" />
     <ClInclude Include="Math\AABB3.hpp" />
+    <ClInclude Include="Math\ConvexHull2.hpp" />
+    <ClInclude Include="Math\ConvexPoly2.hpp" />
+    <ClInclude Include="Math\ConvexPoly3.hpp" />
     <ClInclude Include="Math\CubicBezierCurve2D.hpp" />
     <ClInclude Include="Math\CubicHermiteCurve2D.hpp" />
     <ClInclude Include="Math\EulerAngles.hpp" />

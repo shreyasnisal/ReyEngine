@@ -1,5 +1,6 @@
 #include "Engine/Core/BufferWriter.hpp"
 
+#include "Engine/Core/EngineCommon.hpp"
 
 
 BufferWriter::BufferWriter(std::vector<uint8_t>& buffer)
@@ -33,12 +34,51 @@ void BufferWriter::AppendByte(unsigned char byteToAppend)
 
 void BufferWriter::AppendBool(bool boolToAppend)
 {
-	m_buffer.push_back(boolToAppend);
+	if (boolToAppend)
+	{
+		m_buffer.push_back(1);
+	}
+	else
+	{
+		m_buffer.push_back(0);
+	}
+}
+
+void BufferWriter::AppendShort(short shortToAppend)
+{
+	uint8_t* shortBytes = reinterpret_cast<uint8_t*>(&shortToAppend);
+
+	if (m_isWritingInOppositeEndianMode)
+	{
+		ReverseShortBytesInPlace(shortBytes);
+	}
+
+	m_buffer.push_back(shortBytes[0]);
+	m_buffer.push_back(shortBytes[1]);
+}
+
+void BufferWriter::AppendUShort(unsigned short ushortToAppend)
+{
+	uint8_t* ushortBytes = reinterpret_cast<uint8_t*>(&ushortToAppend);
+
+	if (m_isWritingInOppositeEndianMode)
+	{
+		ReverseShortBytesInPlace(ushortBytes);
+	}
+
+	m_buffer.push_back(ushortBytes[0]);
+	m_buffer.push_back(ushortBytes[1]);
 }
 
 void BufferWriter::AppendUint32(uint32_t uint32ToAppend)
 {
 	uint8_t* uint32Bytes = reinterpret_cast<uint8_t*>(&uint32ToAppend);
+
+	if (m_isWritingInOppositeEndianMode)
+	{
+		ReverseWordBytesInPlace(uint32Bytes);
+	}
+
 	m_buffer.push_back(uint32Bytes[0]);
 	m_buffer.push_back(uint32Bytes[1]);
 	m_buffer.push_back(uint32Bytes[2]);
@@ -48,15 +88,65 @@ void BufferWriter::AppendUint32(uint32_t uint32ToAppend)
 void BufferWriter::AppendInt32(int32_t int32ToAppend)
 {
 	uint8_t* int32Bytes = reinterpret_cast<uint8_t*>(&int32ToAppend);
+
+	if (m_isWritingInOppositeEndianMode)
+	{
+		ReverseWordBytesInPlace(int32Bytes);
+	}
+
 	m_buffer.push_back(int32Bytes[0]);
 	m_buffer.push_back(int32Bytes[1]);
 	m_buffer.push_back(int32Bytes[2]);
 	m_buffer.push_back(int32Bytes[3]);
 }
 
+void BufferWriter::AppendUint64(uint64_t uint64ToAppend)
+{
+	uint8_t* uint64Bytes = reinterpret_cast<uint8_t*>(&uint64ToAppend);
+
+	if (m_isWritingInOppositeEndianMode)
+	{
+		ReverseDWordBytesInPlace(uint64Bytes);
+	}
+
+	m_buffer.push_back(uint64Bytes[0]);
+	m_buffer.push_back(uint64Bytes[1]);
+	m_buffer.push_back(uint64Bytes[2]);
+	m_buffer.push_back(uint64Bytes[3]);
+	m_buffer.push_back(uint64Bytes[4]);
+	m_buffer.push_back(uint64Bytes[5]);
+	m_buffer.push_back(uint64Bytes[6]);
+	m_buffer.push_back(uint64Bytes[7]);
+}
+
+void BufferWriter::AppendInt64(int64_t int64ToAppend)
+{
+	uint8_t* int64Bytes = reinterpret_cast<uint8_t*>(&int64ToAppend);
+
+	if (m_isWritingInOppositeEndianMode)
+	{
+		ReverseDWordBytesInPlace(int64Bytes);
+	}
+
+	m_buffer.push_back(int64Bytes[0]);
+	m_buffer.push_back(int64Bytes[1]);
+	m_buffer.push_back(int64Bytes[2]);
+	m_buffer.push_back(int64Bytes[3]);
+	m_buffer.push_back(int64Bytes[4]);
+	m_buffer.push_back(int64Bytes[5]);
+	m_buffer.push_back(int64Bytes[6]);
+	m_buffer.push_back(int64Bytes[7]);
+}
+
 void BufferWriter::AppendFloat(float floatToAppend)
 {
 	uint8_t* floatBytes = reinterpret_cast<uint8_t*>(&floatToAppend);
+
+	if (m_isWritingInOppositeEndianMode)
+	{
+		ReverseWordBytesInPlace(floatBytes);
+	}
+
 	m_buffer.push_back(floatBytes[0]);
 	m_buffer.push_back(floatBytes[1]);
 	m_buffer.push_back(floatBytes[2]);
@@ -66,6 +156,12 @@ void BufferWriter::AppendFloat(float floatToAppend)
 void BufferWriter::AppendDouble(double doubleToAppend)
 {
 	uint8_t* doubleBytes = reinterpret_cast<uint8_t*>(&doubleToAppend);
+
+	if (m_isWritingInOppositeEndianMode)
+	{
+		ReverseDWordBytesInPlace(doubleBytes);
+	}
+
 	m_buffer.push_back(doubleBytes[0]);
 	m_buffer.push_back(doubleBytes[1]);
 	m_buffer.push_back(doubleBytes[2]);
@@ -140,4 +236,19 @@ void BufferWriter::AppendVertexPCU(Vertex_PCU const& vertexPCUToAppend)
 	AppendVec3(vertexPCUToAppend.m_position);
 	AppendRgba(vertexPCUToAppend.m_color);
 	AppendVec2(vertexPCUToAppend.m_uvTexCoords);
+}
+
+void BufferWriter::OverwriteUint32AtPosition(uint32_t uint32ToOverwriteValueWith, int positionToOverwriteAt)
+{
+	uint8_t* uint32Bytes = reinterpret_cast<uint8_t*>(&uint32ToOverwriteValueWith);
+
+	if (m_isWritingInOppositeEndianMode)
+	{
+		ReverseWordBytesInPlace(uint32Bytes);
+	}
+
+	m_buffer[positionToOverwriteAt] = uint32Bytes[0];
+	m_buffer[positionToOverwriteAt + 1] = uint32Bytes[1];
+	m_buffer[positionToOverwriteAt + 2] = uint32Bytes[2];
+	m_buffer[positionToOverwriteAt + 3] = uint32Bytes[3];
 }

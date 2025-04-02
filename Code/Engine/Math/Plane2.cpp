@@ -21,7 +21,7 @@ bool Plane2::IsPointInFront(Vec2 const& referencePoint) const
 
 bool Plane2::IsPointBehind(Vec2 const& referencePoint) const
 {
-	return GetProjectedLength2D(referencePoint, m_normal) > m_distanceFromOriginAlongNormal;
+	return GetProjectedLength2D(referencePoint, m_normal) < m_distanceFromOriginAlongNormal;
 }
 
 bool Plane2::IsPointOn(Vec2 const& referencePoint) const

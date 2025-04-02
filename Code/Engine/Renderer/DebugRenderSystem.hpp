@@ -43,6 +43,7 @@ void DebugRenderEndFrame();
 void DebugAddWorldPoint(Vec3 const& position, float radius, float duration, Rgba8 const& startColor = Rgba8::WHITE, Rgba8 const& endColor = Rgba8::WHITE, DebugRenderMode mode = DebugRenderMode::USE_DEPTH);
 void DebugAddWorldLine(Vec3 const& startPosition, Vec3 const& endPosition, float radius, float duration, Rgba8 const& startColor = Rgba8::WHITE, Rgba8 const& endColor = Rgba8::WHITE, DebugRenderMode mode = DebugRenderMode::USE_DEPTH);
 void DebugAddWorldWireCylinder(Vec3 const& baseCenter, Vec3 const& topCenter, float radius, float duration, Rgba8 const& startColor = Rgba8::WHITE, Rgba8 const& endColor = Rgba8::WHITE, DebugRenderMode mode = DebugRenderMode::USE_DEPTH);
+void DebugAddWorldCylinder(Vec3 const& baseCenter, Vec3 const& topCenter, float radius, float duration, Rgba8 const& startColor, Rgba8 const& endColor, DebugRenderMode mode);
 void DebugAddWorldWireSphere(Vec3 const& center, float radius, float duration, Rgba8 const& startColor = Rgba8::WHITE, Rgba8 const& endColor = Rgba8::WHITE, DebugRenderMode mode = DebugRenderMode::USE_DEPTH);
 void DebugAddWorldWireBox(AABB3 const& box, float duration, Rgba8 const& startColor, Rgba8 const& endColor, DebugRenderMode mode = DebugRenderMode::USE_DEPTH);
 void DebugAddWorldWireBox(OBB3 const& box, float duration, Rgba8 const& startColor, Rgba8 const& endColor, DebugRenderMode mode = DebugRenderMode::USE_DEPTH);

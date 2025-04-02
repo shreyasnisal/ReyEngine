@@ -22,8 +22,12 @@ public:
 	void AppendChar(unsigned char charToAppend);
 	void AppendByte(unsigned char byteToAppend);
 	void AppendBool(bool boolToAppend);
+	void AppendShort(short shortToAppend);
+	void AppendUShort(unsigned short ushortToAppend);
 	void AppendUint32(uint32_t uint32ToAppend);
 	void AppendInt32(int32_t int32ToAppend);
+	void AppendUint64(uint64_t uint64ToAppend);
+	void AppendInt64(int64_t int64ToAppend);
 	void AppendFloat(float floatToAppend);
 	void AppendDouble(double doubleToAppend);
 	void AppendStringZeroTerminated(std::string stringToAppend);
@@ -37,8 +41,10 @@ public:
 	void AppendEulerAngles(EulerAngles const& eulerAnglesToAppend);
 	void AppendVertexPCU(Vertex_PCU const& vertexPCUToAppend);
 
-	int GetAppendedSize() { return (int)m_buffer.size() - m_initialBufferSize; }
-	int GetTotalSize() { return (int)m_buffer.size(); }
+	void OverwriteUint32AtPosition(uint32_t uint32ToOverwriteValueWith, int positionToOverwriteAt);
+
+	int GetAppendedSize() const { return (int)m_buffer.size() - m_initialBufferSize; }
+	int GetTotalSize() const { return (int)m_buffer.size(); }
 
 public:
 	std::vector<uint8_t>& m_buffer;

@@ -22,8 +22,12 @@ public:
 	unsigned char ParseChar();
 	unsigned char ParseByte();
 	bool ParseBool();
+	short ParseShort();
+	unsigned short ParseUShort();
 	uint32_t ParseUint32();
 	int32_t ParseInt32();
+	uint64_t ParseUint64();
+	int64_t ParseInt64();
 	float ParseFloat();
 	double ParseDouble();
 	void ParseStringZeroTerminated(std::string& out_string);
@@ -37,6 +41,8 @@ public:
 	EulerAngles const ParseEulerAngles();
 	Vertex_PCU const ParseVertexPCU();
 
+	void SetSeekPosition(int seekPosition);
+
 	int GetRemainingSize() const { return (int)m_buffer.size() - m_position; }
 	int GetTotalSize() const { return (int)m_buffer.size(); }
 
@@ -44,4 +50,5 @@ public:
 	std::vector<uint8_t>& m_buffer;
 	int m_position = 0;
 	BufferEndian m_endianMode = BufferEndian::NATIVE;
+	bool m_isReadingInOppositeEndianMode = false;
 };
