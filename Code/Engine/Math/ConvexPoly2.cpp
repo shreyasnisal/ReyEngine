@@ -25,3 +25,8 @@ std::vector<Vec2>& ConvexPoly2::GetVertexes()
 {
 	return m_vertexes;
 }
+
+int ConvexPoly2::GetVertexCount() const
+{
+	return (int)m_vertexes.size();
+}

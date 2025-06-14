@@ -41,6 +41,7 @@ public:
 	EulerAngles const ParseEulerAngles();
 	Vertex_PCU const ParseVertexPCU();
 
+	uint32_t GetSeekPosition() const { return m_position; } 
 	void SetSeekPosition(int seekPosition);
 
 	int GetRemainingSize() const { return (int)m_buffer.size() - m_position; }

@@ -34,7 +34,7 @@ Image::Image(char const* imageFilePath)
 		unsigned char greenByte = texelData[texelIndex + 1];
 		unsigned char blueByte = texelData[texelIndex + 2];
 		unsigned char alphaByte = (bytesPerTexel == 4 ? texelData[texelIndex + 3] : 255);
-		m_rgbaTexels.emplace_back(Rgba8(redByte, greenByte, blueByte, alphaByte));
+		m_rgbaTexels.emplace_back(redByte, greenByte, blueByte, alphaByte);
 	}
 
 	stbi_image_free(texelData);

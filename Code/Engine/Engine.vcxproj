@@ -191,6 +191,7 @@
     <ClCompile Include="Core\Models\Material.cpp" />
     <ClCompile Include="Core\Models\Model.cpp" />
     <ClCompile Include="Core\Models\ModelLoader.cpp" />
+    <ClCompile Include="Core\NamedProperties.cpp" />
     <ClCompile Include="Core\NamedStrings.cpp" />
     <ClCompile Include="Core\Rgba8.cpp" />
     <ClCompile Include="Core\SimpleTriangleFont.cpp" />

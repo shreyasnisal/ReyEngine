@@ -72,7 +72,7 @@ int SplitStringOnDelimiter(Strings& out_splitStrings, std::string const& origina
 	return numStrings;
 }
 
-int SplitStringOnDelimiter(Strings& out_splitStrings, std::string const& originalString, char delimiterToSplitOn, char characterToTokenizeOn)
+int SplitStringOnDelimiter(Strings& out_splitStrings, std::string const& originalString, char delimiterToSplitOn, char characterToTokenizeOn, bool removeCharacterToTokenizeOn)
 {
 	int numStrings = 0;
 	std::string splitString = "";
@@ -83,6 +83,10 @@ int SplitStringOnDelimiter(Strings& out_splitStrings, std::string const& origina
 		if (originalString[i] == characterToTokenizeOn)
 		{
 			isInToken = !isInToken;
+			if (!removeCharacterToTokenizeOn)
+			{
+				splitString += originalString[i];
+			}
 		}
 		else if (isInToken || originalString[i] != delimiterToSplitOn)
 		{

@@ -1,30 +1,14 @@
 #pragma once
 
+#include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Math/IntVec2.hpp"
 #include "Engine/Math/Vec2.hpp"
 
-#include <algorithm>
-#include <cctype>
 #include <map>
 #include <string>
 
-
-//! \cond
-// Hides this struct from doxygen documentation
-struct cmpCaseInsensitive
-{
-	bool operator() (std::string const& a, std::string const& b) const
-	{
-		std::string lowerCaseA = a;
-		std::string lowerCaseB = b;
-		std::transform(a.begin(), a.end(), lowerCaseA.begin(), [](unsigned char c) { return static_cast<unsigned char>(std::tolower(static_cast<int>(c))); });
-		std::transform(b.begin(), b.end(), lowerCaseB.begin(), [](unsigned char c) { return static_cast<unsigned char>(std::tolower(static_cast<int>(c))); });
-		return lowerCaseA < lowerCaseB;
-	}
-};
-//! \endcond
 
 /*! \brief A mapping of string-string key-value pairs
 * 

@@ -3,7 +3,7 @@
 #include <string>
 
 
-class HashedCaseInsensitiveString
+typedef class HashedCaseInsensitiveString
 {
 public:
 	HashedCaseInsensitiveString() = default;
@@ -33,4 +33,4 @@ public:
 private:
 	std::string m_originalStr;
 	unsigned int m_caseInsensitiveHash = 0;
-};
+} HCIS;

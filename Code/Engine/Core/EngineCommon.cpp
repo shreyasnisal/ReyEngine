@@ -1,15 +1,13 @@
-#include "EngineCommon.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 
-#include "Engine/Core/ErrorWarningAssert.hpp"
-
 #include "Engine/Core/DevConsole.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
 
 
 //! \file EngineCommon.cpp
 
 //! A global blackboard. Game or engine code can set key-value pairs in this blackboard which can then be read by game or engine code. Often useful for engine code to communicate with game code
-NamedStrings g_gameConfigBlackboard;
+NamedProperties g_gameConfigBlackboard;
 
 //! A global EventSystem instance. Although defined here, it must be initialized by game code before it can be used
 EventSystem* g_eventSystem = nullptr;

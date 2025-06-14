@@ -63,8 +63,8 @@ void EventSystem::Shutdown()
 */
 void EventSystem::SubscribeEventCallbackFunction(std::string const& eventName, EventCallbackFunction functionPtr, std::string const& helpText)
 {
-	EventSubscription subscription;
-	subscription.m_callbackFunctionPtr = functionPtr;
+	EventSubscription* subscription = new EventSubscription();
+	subscription->m_callbackFunctionPtr = functionPtr;
 	m_subscriptionListMutex.lock();
 	m_subscriptionListByEventName[eventName].push_back(subscription);
 	m_subscriptionListMutex.unlock();
@@ -87,13 +87,19 @@ void EventSystem::UnsubscribeEventCallbackFunction(std::string const& eventName,
 
 	if (subscriberListIter == m_subscriptionListByEventName.end())
 	{
+		m_subscriptionListMutex.unlock();
 		return;
 	}
 
-	SubscriptionList subscriberList = subscriberListIter->second;
+	SubscriptionList& subscriberList = subscriberListIter->second;
 	for (int subscriberIndex = 0; subscriberIndex < static_cast<int>(subscriberList.size()); subscriberIndex++)
 	{
-		if (subscriberList[subscriberIndex].m_callbackFunctionPtr == functionPtr)
+		EventSubscription* subscription = dynamic_cast<EventSubscription*>(subscriberList[subscriberIndex]);
+		if (!subscription)
+		{
+			continue;
+		}
+		if (subscription->m_callbackFunctionPtr == functionPtr)
 		{
 			subscriberList.erase(subscriberList.begin() + subscriberIndex);
 			subscriberIndex--;
@@ -102,6 +108,7 @@ void EventSystem::UnsubscribeEventCallbackFunction(std::string const& eventName,
 
 	if (m_subscriptionListByEventName[eventName].empty())
 	{
+		m_subscriptionListByEventName.erase(eventName);
 		m_helpTexts.erase(eventName);
 	}
 
@@ -140,7 +147,7 @@ void EventSystem::FireEvent(std::string const& eventName, EventArgs& args)
 	SubscriptionList subscriberList = subscriberListIter->second;
 	for (int subscriberIndex = 0; subscriberIndex < static_cast<int>(subscriberList.size()); subscriberIndex++)
 	{
-		if (subscriberList[subscriberIndex].m_callbackFunctionPtr(args))
+		if (subscriberList[subscriberIndex]->Execute(args))
 		{
 			break;
 		}
@@ -277,7 +284,7 @@ void FireEvent(std::string const& eventStr)
 	Strings commandNameAndArgs;
 	int numArgs = SplitStringOnDelimiter(commandNameAndArgs, eventStr, ' ');
 	std::string commandName = commandNameAndArgs[0];
-	NamedStrings eventArgs;
+	EventArgs eventArgs;
 	for (int argIndex = 1; argIndex < numArgs; argIndex++)
 	{
 		Strings keyValuePair;

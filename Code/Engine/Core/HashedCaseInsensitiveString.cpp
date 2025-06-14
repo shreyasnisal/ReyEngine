@@ -1,5 +1,6 @@
 #include "Engine/Core/HashedCaseInsensitiveString.hpp"
 
+
 HashedCaseInsensitiveString::HashedCaseInsensitiveString(char const* text)
 	: m_originalStr(text)
 	, m_caseInsensitiveHash(GetHashForText(text))
@@ -31,51 +32,88 @@ unsigned int HashedCaseInsensitiveString::GetHashForText(std::string const& text
 
 bool HashedCaseInsensitiveString::operator<(HashedCaseInsensitiveString const& hcisToCompare) const
 {
-	return false;
-}
+	if (m_caseInsensitiveHash < hcisToCompare.m_caseInsensitiveHash)
+	{
+		return true;
+	}
 
-bool HashedCaseInsensitiveString::operator>(HashedCaseInsensitiveString const& hcisToCompare) const
-{
-	return false;
-}
-
-bool HashedCaseInsensitiveString::operator==(HashedCaseInsensitiveString const& hcisToCompare) const
-{
-	if (m_caseInsensitiveHash != hcisToCompare.GetHash())
+	if (m_caseInsensitiveHash > hcisToCompare.m_caseInsensitiveHash)
 	{
 		return false;
 	}
 
-	return m_originalStr == hcisToCompare.m_originalStr;
+	return _stricmp(m_originalStr.c_str(), hcisToCompare.m_originalStr.c_str()) < 0 ? true : false;
+}
+
+bool HashedCaseInsensitiveString::operator>(HashedCaseInsensitiveString const& hcisToCompare) const
+{
+	if (m_caseInsensitiveHash > hcisToCompare.m_caseInsensitiveHash)
+	{
+		return true;
+	}
+
+	if (m_caseInsensitiveHash < hcisToCompare.m_caseInsensitiveHash)
+	{
+		return false;
+	}
+
+	return _stricmp(m_originalStr.c_str(), hcisToCompare.m_originalStr.c_str()) > 0 ? true : false;
+}
+
+bool HashedCaseInsensitiveString::operator==(HashedCaseInsensitiveString const& hcisToCompare) const
+{
+	if (m_caseInsensitiveHash != hcisToCompare.m_caseInsensitiveHash)
+	{
+		return false;
+	}
+
+	return _stricmp(m_originalStr.c_str(), hcisToCompare.m_originalStr.c_str()) == 0 ? true : false;
 }
 
 bool HashedCaseInsensitiveString::operator!=(HashedCaseInsensitiveString const& hcisToCompare) const
 {
-	return false;
+	if (m_caseInsensitiveHash != hcisToCompare.m_caseInsensitiveHash)
+	{
+		return true;
+	}
+
+	return _stricmp(m_originalStr.c_str(), hcisToCompare.m_originalStr.c_str()) != 0 ? true : false;
 }
 
 bool HashedCaseInsensitiveString::operator==(char const* strToCompare) const
 {
-	return false;
+	return m_caseInsensitiveHash == GetHashForText(strToCompare);
 }
 
 bool HashedCaseInsensitiveString::operator!=(char const* strToCompare) const
 {
-	return false;
+	if (m_caseInsensitiveHash == GetHashForText(strToCompare))
+	{
+		return false;
+	}
+
+	return _stricmp(m_originalStr.c_str(), strToCompare) != 0 ? true : false;
 }
 
 bool HashedCaseInsensitiveString::operator==(std::string strToCompare) const
 {
-	return false;
+	return m_caseInsensitiveHash == GetHashForText(strToCompare);
 }
 
 bool HashedCaseInsensitiveString::operator!=(std::string strToCompare) const
 {
-	return false;
+	if (m_caseInsensitiveHash == GetHashForText(strToCompare))
+	{
+		return false;
+	}
+
+	return _stricmp(m_originalStr.c_str(), strToCompare.c_str()) != 0 ? true : false;
 }
 
 void HashedCaseInsensitiveString::operator=(HashedCaseInsensitiveString const& assignFrom)
 {
+	m_caseInsensitiveHash = assignFrom.m_caseInsensitiveHash;
+	m_originalStr = assignFrom.m_originalStr;
 }
 
 void HashedCaseInsensitiveString::operator=(char const* text)

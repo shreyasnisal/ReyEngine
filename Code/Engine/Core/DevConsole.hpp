@@ -80,6 +80,8 @@ public:
 	void								EndFrame();
 
 	void								Execute(std::string const& consoleCommandText);
+	void								ExecuteXmlCommandScriptNode(XmlElement const& commandScriptXmlElement);
+	void								ExecuteXmlCommandScriptFile(std::string const& commandScriptXmlFilePathName);
 	void								AddLine(Rgba8 const& color, std::string const& text, bool showTimestampAndFrameNumber = false);
 	void								AddLine(std::string const& text, bool showTimestampAndFrameNumber = false);
 	void								Render(AABB2 const& bounds, Renderer* rendererOverride = nullptr) const;

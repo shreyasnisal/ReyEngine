@@ -54,7 +54,7 @@ void UIWidget::Update()
 	Camera const& camera = m_uiSystem->m_config.m_camera;
 	AABB2 const bounds = GetViewSpaceBounds();
 
-	Vec2 cursorNormalizedPosition = m_uiSystem->m_config.m_input->GetCursorNormalizedPosition();
+	Vec2 cursorNormalizedPosition = m_uiSystem->m_config.m_screenBoundsForVRScreen.GetUVForPoint(m_uiSystem->m_config.m_input->GetCursorNormalizedPosition());		
 	float cursorViewPositionX = RangeMap(cursorNormalizedPosition.x, 0.f, 1.f, camera.GetOrthoBottomLeft().x, camera.GetOrthoTopRight().x);
 	float cursorViewPositionY = RangeMap(cursorNormalizedPosition.y, 0.f, 1.f, camera.GetOrthoBottomLeft().y, camera.GetOrthoTopRight().y);
 	Vec2 cursorViewPosition(cursorViewPositionX, cursorViewPositionY);
@@ -141,7 +141,7 @@ void UIWidget::Render() const
 	Rgba8 color = m_color;
 	Rgba8 borderColor = m_borderColor;
 
-	Vec2 cursorNormalizedPosition = g_input->GetCursorNormalizedPosition();
+	Vec2 cursorNormalizedPosition = m_uiSystem->m_config.m_screenBoundsForVRScreen.GetUVForPoint(g_input->GetCursorNormalizedPosition());
 	float cursorViewPositionX = RangeMap(cursorNormalizedPosition.x, 0.f, 1.f, camera.GetOrthoBottomLeft().x, camera.GetOrthoTopRight().x);
 	float cursorViewPositionY = RangeMap(cursorNormalizedPosition.y, 0.f, 1.f, camera.GetOrthoBottomLeft().y, camera.GetOrthoTopRight().y);
 	Vec2 cursorViewPosition = Vec2(cursorViewPositionX, cursorViewPositionY);

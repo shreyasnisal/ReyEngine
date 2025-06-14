@@ -18,6 +18,7 @@ public:
 	ConvexHull2(ConvexPoly2 const& polyToCreateHullFrom);
 
 	std::vector<Plane2> const& GetPlanes() const;
+	int GetPlanesCount() const;
 
 private:
 	std::vector<Plane2> m_planes;

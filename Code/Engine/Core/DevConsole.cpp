@@ -566,7 +566,7 @@ void DevConsole::Execute(std::string const& consoleCommandText)
 	for (int commandIndex = 0; commandIndex < numCommandLines; commandIndex++)
 	{
 		Strings commandNameAndArgs;
-		int numArgs = SplitStringOnDelimiter(commandNameAndArgs, commandLines[commandIndex], ' ', '"');
+		int numArgs = SplitStringOnDelimiter(commandNameAndArgs, commandLines[commandIndex], ' ', '"', false);
 		std::string commandName = commandNameAndArgs[0];
 
 		// convert to lower case to check if this command is the echo command
@@ -574,7 +574,7 @@ void DevConsole::Execute(std::string const& consoleCommandText)
 
 		if (!strcmp(commandName.c_str(), "echo"))
 		{
-			NamedStrings eventArgs;
+			EventArgs eventArgs;
 			std::string echoArg;
 			if (numArgs == 1)
 			{
@@ -599,7 +599,7 @@ void DevConsole::Execute(std::string const& consoleCommandText)
 
 		if (!strcmp(commandName.c_str(), "@echo"))
 		{
-			NamedStrings eventArgs;
+			EventArgs eventArgs;
 			std::string echoArg;
 			if (numArgs == 1)
 			{
@@ -623,7 +623,7 @@ void DevConsole::Execute(std::string const& consoleCommandText)
 
 		if (!strcmp(commandName.c_str(), "@echometa"))
 		{
-			NamedStrings eventArgs;
+			EventArgs eventArgs;
 			std::string echoArg;
 			if (numArgs == 1)
 			{
@@ -645,11 +645,11 @@ void DevConsole::Execute(std::string const& consoleCommandText)
 			return;
 		}
 
-		NamedStrings eventArgs;
+		EventArgs eventArgs;
 		for (int argIndex = 1; argIndex < numArgs; argIndex++)
 		{
 			Strings keyValuePair;
-			SplitStringOnDelimiter(keyValuePair, commandNameAndArgs[argIndex], '=');
+			SplitStringOnDelimiter(keyValuePair, commandNameAndArgs[argIndex], '=', '"');
 			
 			if (keyValuePair.size() == 1)
 			{
@@ -661,6 +661,39 @@ void DevConsole::Execute(std::string const& consoleCommandText)
 		}
 		FireEvent(commandName, eventArgs);
 	}
+}
+
+void DevConsole::ExecuteXmlCommandScriptNode(XmlElement const& commandScriptXmlElement)
+{
+	XmlElement const* currentElement = commandScriptXmlElement.FirstChildElement();
+	while (currentElement)
+	{
+		char const* commandName = currentElement->Name();
+		EventArgs args;
+		XmlAttribute const* currentAttribute = currentElement->FirstAttribute();
+		while (currentAttribute)
+		{
+			args.SetValue(currentAttribute->Name(), currentAttribute->Value());
+			currentAttribute = currentAttribute->Next();
+		}
+		FireEvent(commandName, args);
+
+		currentElement = currentElement->NextSiblingElement();
+	}
+}
+
+void DevConsole::ExecuteXmlCommandScriptFile(std::string const& commandScriptXmlFilePathName)
+{
+	XmlDocument doc;
+	XmlResult result = doc.LoadFile(commandScriptXmlFilePathName.c_str());
+	if (result != XmlResult::XML_SUCCESS)
+	{
+		g_console->AddLine(DevConsole::ERROR, Stringf("Could not find or read file %s!", commandScriptXmlFilePathName.c_str()));
+		return;
+	}
+
+	XmlElement const* rootElement = doc.RootElement();
+	ExecuteXmlCommandScriptNode(*rootElement);
 }
 
 /*! \brief Gets the mode that the console is currently in

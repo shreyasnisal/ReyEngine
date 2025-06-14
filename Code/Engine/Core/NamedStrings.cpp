@@ -1,5 +1,6 @@
 #include "Engine/Core/NamedStrings.hpp"
 
+
 /*! \brief Adds all attributes of the given XmlElement to the NamedStrings instance
 * 
 * \param element The XmlElement for which all attributes should be added to this NamedStrings instance

@@ -34,3 +34,8 @@ std::vector<Plane2> const& ConvexHull2::GetPlanes() const
 {
 	return m_planes;
 }
+
+int ConvexHull2::GetPlanesCount() const
+{
+	return (int)m_planes.size();;
+}

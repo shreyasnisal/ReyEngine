@@ -274,6 +274,9 @@
     <ClCompile Include="Math\ConvexPoly3.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Core\NamedProperties.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">

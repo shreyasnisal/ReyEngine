@@ -19,6 +19,7 @@ public:
 	Camera m_camera;
 	bool m_supportKeyboard = true;
 	std::string m_fontFileNameWithNoExtension = "";
+	AABB2 m_screenBoundsForVRScreen = AABB2::ZERO_TO_ONE;
 };
 
 class UISystem

@@ -1,8 +1,11 @@
 #pragma once
 
-#include "Engine/Core/NamedStrings.hpp"
+#include "Engine/Core/NamedProperties.hpp"
 
+#include <algorithm>
+#include <cctype>
 #include <string>
+
 
 class DevConsole;
 class EventSystem;
@@ -12,7 +15,7 @@ class UISystem;
 
 #define UNUSED(x) (void)(x);
 
-extern NamedStrings g_gameConfigBlackboard;
+extern NamedProperties g_gameConfigBlackboard;
 extern DevConsole* g_console;
 extern EventSystem* g_eventSystem;
 extern InputSystem* g_input;
@@ -43,9 +46,9 @@ enum class XRHand
 
 enum class BufferEndian
 {
-	NATIVE,
-	LITTLE,
-	BIG,
+	NATIVE = 0,
+	LITTLE = 1,
+	BIG = 2,
 };
 
 BufferEndian GetPlatformNativeEndianMode();
@@ -54,3 +57,17 @@ void ReverseShortBytesInPlace(uint8_t* bytes);
 void ReverseWordBytesInPlace(uint8_t* bytes);
 void ReverseDWordBytesInPlace(uint8_t* bytes);
 
+//! \cond
+// Hides this struct from doxygen documentation
+struct cmpCaseInsensitive
+{
+	bool operator() (std::string const& a, std::string const& b) const
+	{
+		std::string lowerCaseA = a;
+		std::string lowerCaseB = b;
+		std::transform(a.begin(), a.end(), lowerCaseA.begin(), [](unsigned char c) { return static_cast<unsigned char>(std::tolower(static_cast<int>(c))); });
+		std::transform(b.begin(), b.end(), lowerCaseB.begin(), [](unsigned char c) { return static_cast<unsigned char>(std::tolower(static_cast<int>(c))); });
+		return lowerCaseA < lowerCaseB;
+	}
+};
+//! \endcond

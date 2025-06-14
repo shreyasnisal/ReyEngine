@@ -52,7 +52,7 @@ short BufferParser::ParseShort()
 
 	if (m_isReadingInOppositeEndianMode)
 	{
-		ReverseWordBytesInPlace(bytes);
+		ReverseShortBytesInPlace(bytes);
 	}
 
 	short value = *reinterpret_cast<short*>(bytes);
@@ -68,7 +68,7 @@ unsigned short BufferParser::ParseUShort()
 
 	if (m_isReadingInOppositeEndianMode)
 	{
-		ReverseWordBytesInPlace(bytes);
+		ReverseShortBytesInPlace(bytes);
 	}
 
 	unsigned short value = *reinterpret_cast<short*>(bytes);
